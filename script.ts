@@ -27,7 +27,7 @@ type Player = {
 };
 var GROUND_HEIGHT: number = 100;
 var GRAVITY: number = 0;
-var GRAVITATIONAL_ACCELERATION = 1;
+var GRAVITATIONAL_ACCELERATION = 0;
 class Dino implements Player {
   public width: number;
   public height: number;
@@ -38,8 +38,8 @@ class Dino implements Player {
     this.positionY = canvas.height - GROUND_HEIGHT - this.height;
   }
   public jump() {
-    GRAVITY = -10;
-    setTimeout(() => GRAVITY = 10, 500);
+    GRAVITY = -30;
+    GRAVITATIONAL_ACCELERATION = 1;
   }
 }
 
@@ -63,11 +63,19 @@ function game(): void {
 }
 
 function drawPlayer(): void {
+  if (DINO.isJumping) {
+    GRAVITATIONAL_ACCELERATION+=.03;
+  }
+  GRAVITY += GRAVITATIONAL_ACCELERATION;
   DINO.positionY = Math.min(
     DINO.positionY + GRAVITY,
     canvas.height - GROUND_HEIGHT - DINO.height,
   );
-  if (DINO.positionY + DINO.height >= canvas.height - GROUND_HEIGHT) {
+  let denoOnGround: boolean =
+    DINO.positionY + DINO.height >= canvas.height - GROUND_HEIGHT;
+  if (denoOnGround) {
+    GRAVITY = 0;
+    GRAVITATIONAL_ACCELERATION = 0;
     DINO.isJumping = false;
   }
   context.save();
