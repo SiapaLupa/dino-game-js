@@ -45,11 +45,30 @@ window.onkeydown = (e) => {
     }
 };
 function game() {
+    if (GAME_OVER) {
+        insertText();
+        return window.cancelAnimationFrame(start);
+    }
     clearCanvas();
     drawGround();
     drawPlayer();
     drawCactus();
-    window.requestAnimationFrame(() => game());
+    start = window.requestAnimationFrame(() => game());
+}
+function insertText(text = "Game Over!", x = canvas.width / 2, y = canvas.height / 2, options = {
+    fontSize: 50,
+    fontFamily: "Arial",
+    fontColor: "white",
+}) {
+    context.save();
+    context.fillStyle = options.fontColor;
+    context.font = String(options.fontSize).concat("px", " ", options.fontFamily);
+    let measureText = context.measureText(text);
+    context.beginPath();
+    context.fillText(text, x - measureText.width / 2, y + measureText.actualBoundingBoxAscent);
+    context.closePath();
+    context.restore();
+    return measureText;
 }
 function drawCactus() {
     CACTUSES.forEach((cactus) => {

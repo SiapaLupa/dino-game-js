@@ -64,7 +64,7 @@ var CACTUSES: Array<Cactus> = new Array(3).fill(null).map((_, i) => {
   };
 });
 
-let start = window.requestAnimationFrame(() => game());
+let start: number = window.requestAnimationFrame(() => game());
 
 window.onkeydown = (e: KeyboardEvent) => {
   if (DINO.isJumping) return;
@@ -75,11 +75,40 @@ window.onkeydown = (e: KeyboardEvent) => {
 };
 
 function game(): void {
+  if (GAME_OVER) {
+    insertText();
+    return window.cancelAnimationFrame(start);
+  }
   clearCanvas();
   drawGround();
   drawPlayer();
   drawCactus();
-  window.requestAnimationFrame(() => game());
+  start = window.requestAnimationFrame(() => game());
+}
+
+function insertText(
+  text: string = "Game Over!",
+  x: number = canvas.width / 2,
+  y: number = canvas.height / 2,
+  options: { fontSize: number; fontFamily: string; fontColor: string } = {
+    fontSize: 50,
+    fontFamily: "Arial",
+    fontColor: "white",
+  },
+): TextMetrics {
+  context.save();
+  context.fillStyle = options.fontColor;
+  context.font = String(options.fontSize).concat("px", " ", options.fontFamily);
+  let measureText = context.measureText(text);
+  context.beginPath();
+  context.fillText(
+    text,
+    x - measureText.width / 2,
+    y + measureText.actualBoundingBoxAscent,
+  );
+  context.closePath();
+  context.restore();
+  return measureText;
 }
 
 function drawCactus(): void {
