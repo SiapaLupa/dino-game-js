@@ -13,18 +13,28 @@ var imageReady = {
 var GROUND_HEIGHT = 100;
 var GRAVITY = 0;
 var GRAVITATIONAL_ACCELERATION = 0;
+var SPEED = 6;
+var GAME_OVER = false;
 class Dino {
     constructor(player = { height: 100, width: 50 }) {
         this.isJumping = false;
         Object.assign(this, player);
         this.positionY = canvas.height - GROUND_HEIGHT - this.height;
+        this.positionX = 100;
     }
     jump() {
-        GRAVITY = -30;
+        GRAVITY = -25;
         GRAVITATIONAL_ACCELERATION = 1;
     }
 }
 var DINO = new Dino();
+var CACTUSES = new Array(3).fill(null).map((_, i) => {
+    return {
+        height: 100,
+        width: 20,
+        positionX: canvas.width + randomIntBetween(200, 1000) * (i + 1),
+    };
+});
 let start = window.requestAnimationFrame(() => game());
 window.onkeydown = (e) => {
     if (DINO.isJumping)
@@ -38,7 +48,31 @@ function game() {
     clearCanvas();
     drawGround();
     drawPlayer();
+    drawCactus();
     window.requestAnimationFrame(() => game());
+}
+function drawCactus() {
+    CACTUSES.forEach((cactus) => {
+        cactus.positionX = cactus.positionX <= 0
+            ? cactus.positionX = canvas.width + randomIntBetween(0, 1000)
+            : cactus.positionX - SPEED;
+        context.fillStyle = "white";
+        context.beginPath();
+        context.fillRect(cactus.positionX, canvas.height - GROUND_HEIGHT - cactus.height, cactus.width, cactus.height);
+        context.fill();
+        context.closePath();
+        let dinoAteCactus = DINO.positionX + DINO.width >= cactus.positionX &&
+            DINO.positionX + DINO.width < cactus.positionX + cactus.width &&
+            DINO.positionY + DINO.height >=
+                canvas.height - GROUND_HEIGHT - cactus.height;
+        let dinoSteppedOnCactus = DINO.positionY + DINO.height >=
+            canvas.height - GROUND_HEIGHT - cactus.height &&
+            DINO.positionX + DINO.width >= cactus.positionX &&
+            DINO.positionX <= cactus.positionX + cactus.width;
+        if (dinoAteCactus || dinoSteppedOnCactus) {
+            GAME_OVER = true;
+        }
+    });
 }
 function drawPlayer() {
     if (DINO.isJumping) {
@@ -55,7 +89,7 @@ function drawPlayer() {
     context.save();
     context.fillStyle = "white";
     context.beginPath();
-    context.rect(100, DINO.positionY, DINO.width, DINO.height);
+    context.rect(DINO.positionX, DINO.positionY, DINO.width, DINO.height);
     context.closePath();
     context.fill();
     context.restore();
@@ -72,4 +106,7 @@ function drawGround() {
 }
 function clearCanvas() {
     context.clearRect(0, 0, canvas.width, canvas.height);
+}
+function randomIntBetween(min, max) {
+    return Math.floor(Math.random() * (max - min) + min);
 }
