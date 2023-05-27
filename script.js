@@ -15,6 +15,8 @@ var GRAVITY = 0;
 var GRAVITATIONAL_ACCELERATION = 0;
 var SPEED = 6;
 var GAME_OVER = false;
+var SCORE = 0;
+var HIGHSCORE = 0;
 class Dino {
     constructor(player = { height: 100, width: 50 }) {
         this.isJumping = false;
@@ -46,16 +48,17 @@ window.onkeydown = (e) => {
 };
 function game() {
     if (GAME_OVER) {
-        insertText();
+        insertText("Game Over");
         return window.cancelAnimationFrame(start);
     }
     clearCanvas();
+    drawScore();
     drawGround();
     drawPlayer();
     drawCactus();
     start = window.requestAnimationFrame(() => game());
 }
-function insertText(text = "Game Over!", x = canvas.width / 2, y = canvas.height / 2, options = {
+function insertText(text, x = canvas.width / 2, y = canvas.height / 2, options = {
     fontSize: 50,
     fontFamily: "Arial",
     fontColor: "white",
@@ -122,6 +125,13 @@ function drawGround() {
     context.stroke();
     context.closePath();
     context.restore();
+}
+function drawScore(increment = 1) {
+    SCORE += increment;
+    let actualScore = Math.round(SCORE / 10);
+    SCORE > HIGHSCORE && (HIGHSCORE = actualScore);
+    let measureText = insertText("Score : " + actualScore, undefined, 0);
+    insertText("High Score : " + HIGHSCORE, undefined, measureText.actualBoundingBoxAscent);
 }
 function clearCanvas() {
     context.clearRect(0, 0, canvas.width, canvas.height);

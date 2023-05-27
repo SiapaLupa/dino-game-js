@@ -38,6 +38,8 @@ var GRAVITY: number = 0;
 var GRAVITATIONAL_ACCELERATION = 0;
 var SPEED: number = 6;
 var GAME_OVER: boolean = false;
+var SCORE: number = 0;
+var HIGHSCORE: number = 0;
 class Dino implements Player {
   public width: number;
   public height: number;
@@ -76,10 +78,11 @@ window.onkeydown = (e: KeyboardEvent) => {
 
 function game(): void {
   if (GAME_OVER) {
-    insertText();
+    insertText("Game Over");
     return window.cancelAnimationFrame(start);
   }
   clearCanvas();
+  drawScore();
   drawGround();
   drawPlayer();
   drawCactus();
@@ -87,7 +90,7 @@ function game(): void {
 }
 
 function insertText(
-  text: string = "Game Over!",
+  text: string,
   x: number = canvas.width / 2,
   y: number = canvas.height / 2,
   options: { fontSize: number; fontFamily: string; fontColor: string } = {
@@ -176,6 +179,19 @@ function drawGround(): void {
   context.closePath();
   context.restore();
 }
+
+function drawScore(increment: number = 1): void {
+  SCORE += increment;
+  let actualScore: number = Math.round(SCORE / 10);
+  SCORE > HIGHSCORE && (HIGHSCORE = actualScore);
+  let measureText = insertText("Score : " + actualScore, undefined, 0);
+  insertText(
+    "High Score : " + HIGHSCORE,
+    undefined,
+    measureText.actualBoundingBoxAscent,
+  );
+}
+
 function clearCanvas(): void {
   context.clearRect(0, 0, canvas.width, canvas.height);
 }
